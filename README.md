@@ -1,4 +1,4 @@
-### rsys_edit 
+### rsys_edit
 
 This is a tool for viewing and (optionally) editing the entries in a [recrypt.sys](http://www.iquebrew.org/index.php?title=Recrypt.sys) file from an iQue Player.
 
