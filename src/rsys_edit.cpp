@@ -8,10 +8,10 @@
 #include "rsys_edit.hpp"
 #include "io.hpp"
 
-const int HEADER_SIZE = 0x44; // sizeof(ECC_sig) + sizeof(num_entries) = 0x40 + 0x04
-const int ENTRY_SIZE = 0x20;
-const bool ENCRYPT = true;
-const bool DECRYPT = false;
+constexpr int HEADER_SIZE = 0x44; // sizeof(ECC_sig) + sizeof(num_entries) = 0x40 + 0x04
+constexpr int ENTRY_SIZE = 0x20;
+constexpr bool ENCRYPT = true;
+constexpr bool DECRYPT = false;
 
 uint8_t * open_list(std::string filename) {
 	uint8_t * num_entries = read_file(filename, 0x43, 1);
