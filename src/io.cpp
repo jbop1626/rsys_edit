@@ -5,6 +5,7 @@
 #include <sstream>
 #include <cstdint>
 #include <cstdlib>
+#include <cctype> // for isxdigit
 #include <algorithm>
 
 #include "io.hpp"
@@ -94,13 +95,25 @@ int get_choice(int & input) {
 	return input;
 }
 
+bool is_hex(std::string str) {
+	for (char s : str) {
+		if (!isxdigit(s)) {
+			return false;
+		}
+	}
+	return true;
+}
+
 bool hex_input_to_buffer(uint8_t * buffer, int length) {
 	std::string line_str;
 	std::getline(std::cin, line_str);
 
-	// Strip spaces, check length, insert/replace spaces
+	// Strip spaces, check length and hex, insert/replace spaces
 	line_str.erase(std::remove(line_str.begin(), line_str.end(), ' '), line_str.end());
 	if (line_str.length() != length * 2) {
+		return false;
+	}
+	if (!is_hex(line_str)) {
 		return false;
 	}
 	for (int p = 2; p <= length * 3; p += 3) {

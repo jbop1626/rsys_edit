@@ -37,6 +37,8 @@ void write_file(std::string out_filename, uint8_t * buffer, unsigned int start_p
 
 int get_choice(int & input);
 
+bool is_hex(std::string str);
+
 bool hex_input_to_buffer(uint8_t * buffer, int length);
 
 uint32_t byteswap(uint32_t input);
