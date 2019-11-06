@@ -37,7 +37,7 @@ void print_element(const element a) {
 	for (int i = 0; i < 8; ++i) {
 		std::cout << std::setw(8) << std::setfill('0') << std::hex << a[i] << " ";
 	}
-	std::cout << std::endl << std::endl;;
+	std::cout << std::endl << std::endl;
 }
 
 void print_point(const ec_point & a) {
@@ -65,26 +65,31 @@ void gf2m_set_zero(element a) {
 }
 
 void gf2m_copy(const element src, element dst) {
-	std::memcpy(dst, src, 32);
+    for (int i = 0; i < 8; ++i) {
+        dst[i] = src[i];
+    }
 }
 
 int gf2m_get_bit(const element a, int index) {
-	int word_index = ((index / 32) - 7) * -1;
-	int shift = index - (32 * (7 - word_index));
-	return (a[word_index] >> shift) & 1;
+    if (index >= 233 || index < 0) return -1;
+    int word_index = ((index / 32) - 7) * -1;
+    int shift = index - (32 * (7 - word_index));
+    return (a[word_index] >> shift) & 1;
 }
 
 void gf2m_left_shift(element a, int shift) {
-	if (!shift) {
-		a[0] &= 0x1FF;
-		return;
-	}
-	for (int i = 0; i < 7; ++i) {
-		a[i] <<= 1;
-		if (a[i + 1] >= 0x80000000) a[i] |= 1;
-	}
-	a[7] <<= 1;
-	gf2m_left_shift(a, shift - 1);
+    if (shift <= 0) {
+        a[0] &= 0x1FF;
+        return;
+    }
+    for (int i = 0; i < 7; ++i) {
+        a[i] <<= 1;
+        if (a[i + 1] >= 0x80000000) {
+            a[i] |= 1;
+        }
+    }
+    a[7] <<= 1;
+    gf2m_left_shift(a, shift - 1);
 }
 
 bool gf2m_is_one(const element a) {
@@ -98,18 +103,18 @@ bool gf2m_is_one(const element a) {
 }
 
 int gf2m_degree(const element a) {
-	int degree = 0;
-	int i = 0;
-	while (a[i] == 0) {
-		i++;
-	}
-	degree = (7 - i) * 32;
-	uint32_t MSW = a[i];
-	while (MSW != 0) {
-		MSW >>= 1;
-		degree += 1;
-	}
-	return degree - 1;
+    int degree = 0;
+    int i = 0;
+    while ((i < 7) && (a[i] == 0)) {
+        i++;
+    }
+    degree = (7 - i) * 32;
+    uint32_t most_significant_word = a[i];
+    while (most_significant_word != 0) {
+        most_significant_word >>= 1;
+        degree += 1;
+    }
+    return degree - 1;
 }
 
 void gf2m_swap(element a, element b) {
@@ -198,10 +203,8 @@ bool ec_point_is_equal(const ec_point & a, const ec_point & c) {
 }
 
 void ec_point_neg(const ec_point & a, ec_point & c) {
-	element temp;
 	gf2m_copy(a.x, c.x);
-	gf2m_add(a.x, a.y, temp);
-	gf2m_copy(temp, c.y);
+	gf2m_add(a.x, a.y, c.y);
 }
 
 void ec_point_double(const ec_point & a, ec_point & c) {
@@ -329,39 +332,38 @@ bool ec_point_on_curve(const ec_point & P) {
 		work fine for any input with the correct length.
 */
 // (32-byte) octet stream to GF(2^m) element
-void os_to_elem(const uint8_t * os, element elem) {
-	int j = 0;
-	for (int i = 0; i < 8; ++i) {
-		uint32_t temp = 0;
-		temp |= (os[j] << 24);
-		temp |= (os[j + 1] << 16);
-		temp |= (os[j + 2] << 8);
-		temp |= os[j + 3];
-		elem[i] = temp;
-		j += 4;
-	}
+void os_to_elem(const uint8_t * src_os, element dst_elem) {
+    int j = 0;
+    for (int i = 0; i < 8; ++i) {
+        uint32_t result = src_os[j];
+        result = (result << 8) | src_os[j + 1];
+        result = (result << 8) | src_os[j + 2];
+        result = (result << 8) | src_os[j + 3];
+        dst_elem[i] = result;
+        j += 4;
+    }
 }
 
 // (64-byte) octet stream to elliptic curve point
-void os_to_point(const uint8_t * os, ec_point & point) {
-	os_to_elem(os, point.x);
-	os_to_elem(os + 32, point.y);
+void os_to_point(const uint8_t * src_os, ec_point & dst_point) {
+    os_to_elem(src_os, dst_point.x);
+    os_to_elem(src_os + 32, dst_point.y);
 }
 
 // GF(2^m) element to (32-byte) octet stream
-void elem_to_os(const element src, uint8_t * output_os) {
-	int j = 0;
-	for (int i = 0; i < 7; ++i) {
-		output_os[j] = ((src[i] & 0xFF000000) >> 24);
-		output_os[j + 1] = ((src[i] & 0x00FF0000) >> 16);
-		output_os[j + 2] = ((src[i] & 0x0000FF00) >> 8);
-		output_os[j + 3] = src[i] & 0x000000FF;
-		j += 4;
-	}
+void elem_to_os(const element src_elem, uint8_t * dst_os) {
+    int j = 0;
+    for (int i = 0; i < 8; ++i) {
+        dst_os[j] =     (src_elem[i] & 0xFF000000) >> 24;
+        dst_os[j + 1] = (src_elem[i] & 0x00FF0000) >> 16;
+        dst_os[j + 2] = (src_elem[i] & 0x0000FF00) >> 8;
+        dst_os[j + 3] =  src_elem[i] & 0x000000FF;
+        j += 4;
+    }
 }
 
 // Elliptic curve point to (64-byte) octet stream
-void point_to_os(const ec_point & src, uint8_t * output_os) {
-	elem_to_os(src.x, output_os);
-	elem_to_os(src.y, output_os + 32);
+void point_to_os(const ec_point & src_point, uint8_t * dst_os) {
+    elem_to_os(src_point.x, dst_os);
+    elem_to_os(src_point.y, dst_os + 32);
 }
