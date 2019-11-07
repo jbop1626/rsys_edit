@@ -1,21 +1,23 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <cstddef>
 #include <cstdint>
+#include <cstring>
 
-#include "aes/aes.hpp"
+#include "aes/aes.h"
 #include "ninty-233/ninty-233.hpp"
 #include "rsys_edit.hpp"
 #include "io.hpp"
 
-constexpr int HEADER_SIZE = 0x44; // sizeof(ECC_sig) + sizeof(num_entries) = 0x40 + 0x04
-constexpr int ENTRY_SIZE = 0x20;
+constexpr unsigned HEADER_SIZE = 0x44; // sizeof(ECC_sig) + sizeof(num_entries) = 0x40 + 0x04
+constexpr unsigned ENTRY_SIZE = 0x20;
 constexpr bool ENCRYPT = true;
 constexpr bool DECRYPT = false;
 
 uint8_t * open_list(std::string filename) {
 	uint8_t * num_entries = read_file(filename, 0x43, 1);
-	int data_length = ((*num_entries) * ENTRY_SIZE) + HEADER_SIZE;
+	std::size_t data_length = ((*num_entries) * ENTRY_SIZE) + HEADER_SIZE;
 	delete[] num_entries;
 	return read_file(filename, 0, data_length);
 }
@@ -26,13 +28,13 @@ int view_list(uint8_t * recrypt_list, const uint8_t * virage2) {
 	int num_entries = recrypt_list[0x43];
 	std::cout << std::endl << "There are " << num_entries << " entries in the recrypt list:" << std::endl;
 	for(int entry = 1; entry <= num_entries; ++entry) {
-		print_entry(recrypt_list, num_entries, entry);
+		print_entry(recrypt_list, entry);
 	}
 	
 	return HEADER_SIZE + (num_entries * ENTRY_SIZE);
 }
 
-void print_entry(uint8_t * recrypt_list, int num_entries, int entry) {
+void print_entry(uint8_t * recrypt_list, int entry) {
 	int offset = HEADER_SIZE + (ENTRY_SIZE * (entry - 1));
 	std::cout << "Entry " << entry << ":" << std::endl;
 	std::cout << "Content ID:  ";

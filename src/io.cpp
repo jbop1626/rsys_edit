@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <string>
 #include <sstream>
+#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <cctype> // for isxdigit
@@ -35,7 +36,7 @@ void parse_args(program_arguments & prog_args, int argc, char * argv[]) {
 	}
 }
 
-uint8_t * read_file(std::string in_filename, unsigned int start_pos, unsigned int read_length) {
+uint8_t * read_file(std::string in_filename, unsigned int start_pos, std::size_t read_length) {
 	std::ifstream fin;
 	fin.open(in_filename, std::ios_base::in | std::ios_base::binary | std::ios_base::ate);
 	if (!fin.is_open()) {
@@ -44,7 +45,7 @@ uint8_t * read_file(std::string in_filename, unsigned int start_pos, unsigned in
 		std::exit(EXIT_FAILURE);
 	}
 	
-	size_t file_length = fin.tellg();
+	std::size_t file_length = fin.tellg();
 	if (read_length == 0) {
 		read_length = file_length - start_pos;
 	}
@@ -104,7 +105,7 @@ bool is_hex(std::string str) {
 	return true;
 }
 
-bool hex_input_to_buffer(uint8_t * buffer, int length) {
+bool hex_input_to_buffer(uint8_t * buffer, unsigned int length) {
 	std::string line_str;
 	std::getline(std::cin, line_str);
 
@@ -116,14 +117,14 @@ bool hex_input_to_buffer(uint8_t * buffer, int length) {
 	if (!is_hex(line_str)) {
 		return false;
 	}
-	for (int p = 2; p <= length * 3; p += 3) {
+	for (unsigned p = 2; p <= length * 3; p += 3) {
 		line_str.insert(p, 1, ' ');
 	}
 
 	std::istringstream iss{ line_str };
 	unsigned int input_byte = 0;
 
-	for (int i = 0; i < length; ++i) {
+	for (unsigned i = 0; i < length; ++i) {
 		if (iss >> std::hex >> input_byte) {
 			if (input_byte < 0x100)
 				buffer[i] = input_byte;

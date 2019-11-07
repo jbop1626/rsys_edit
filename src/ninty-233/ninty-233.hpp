@@ -26,7 +26,7 @@
 
 #include "bigint/include/BigIntegerLibrary.hpp"
 #include "ecc/ecc.hpp"
-#include "sha1/sha1.hpp"
+#include "sha1/sha1.h"
 
 #define IQUE_ECC 1
 

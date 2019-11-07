@@ -22,6 +22,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  TYPES
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // Sha1Context - This must be initialised using Sha1Initialised. Do not modify the contents of this structure directly.
 typedef struct
@@ -92,3 +95,9 @@ void
         uint32_t            BufferSize,     // [in]
         SHA1_HASH*          Digest          // [in]
     );
+
+#ifdef __cplusplus
+}
+#endif
+    
+    

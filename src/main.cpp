@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iomanip>
 #include <string>
+#include <cstddef>
 
 #include "io.hpp"
 #include "rsys_edit.hpp"
@@ -11,7 +12,7 @@ const std::string ver = "1.0.0";
 int main(int argc, char * argv[]) {
 
 	std::cout << std::endl << "rsys_edit v" << ver << std::endl;
-	std::cout << "Copyright 2018 Jbop (https://github.com/jbop1626)" << std::endl << std::endl;
+	std::cout << "Copyright 2018, 2019 Jbop (https://github.com/jbop1626)" << std::endl << std::endl;
 
 	program_arguments prog_args;
 	parse_args(prog_args, argc, argv);
